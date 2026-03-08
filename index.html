@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестування</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Вибір тесту -->
+        <div v-if="currentView === 'testSelection'" class="max-w-2xl mx-auto">
+            <h1 class="text-4xl font-bold text-center text-indigo-800 mb-8">Виберіть тест</h1>
+            <div class="grid gap-4">
+                <div 
+                    v-for="test in tests" 
+                    :key="test.id"
+                    @click="selectTest(test)"
+                    class="bg-white rounded-lg shadow-lg p-6 cursor-pointer hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                >
+                    <h2 class="text-2xl font-semibold text-indigo-700">{{ test.name }}</h2>
+                    <p class="text-gray-600 mt-2">Питань: {{ test.questions.length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Проходження тесту -->
+        <div v-if="currentView === 'testing'" class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-lg shadow-xl p-8">
+                <!-- Прогрес -->
+                <div class="mb-6">
+                    <p class="text-center text-lg font-semibold text-indigo-700">
+                        Питання {{ currentQuestionIndex + 1 }} з {{ selectedTest.questions.length }}
+                    </p>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div 
+                            class="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                            :style="{ width: ((currentQuestionIndex + 1) / selectedTest.questions.length * 100) + '%' }"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Питання -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        {{ currentQuestion.text }}
+                    </h2>
+                    
+                    <!-- Зображення якщо є -->
+                    <img 
+                        v-if="currentQuestion.image" 
+                        :src="currentQuestion.image" 
+                        alt="Питання"
+                        class="w-full max-w-md mx-auto rounded-lg shadow-md mb-6"
+                    />
+                </div>
+
+                <!-- Відповіді -->
+                <div class="space-y-3">
+                    <button
+                        v-for="(answer, index) in currentQuestion.answers"
+                        :key="index"
+                        @click="selectAnswer(index)"
+                        :disabled="answerSelected"
+                        :class="getAnswerClass(index)"
+                        class="w-full text-left p-4 rounded-lg font-medium transition-all duration-300 disabled:cursor-not-allowed"
+                    >
+                        {{ answer }}
+                    </button>
+                </div>
+
+                <!-- Повідомлення про помилку -->
+                <div v-if="showError" class="mt-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                    <p class="font-bold">Проїбав Вампір. Треба починати з початку.</p>
+                    <button 
+                        @click="restartTest"
+                        class="mt-3 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                    >
+                        Почати спочатку
+                    </button>
+                </div>
+
+                <!-- Кнопка наступного питання -->
+                <div v-if="answerSelected && !showError" class="mt-6 text-center">
+                    <button 
+                        @click="nextQuestion"
+                        class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                    >
+                        {{ isLastQuestion ? 'Завершити тест' : 'Наступне питання' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Введення імені -->
+        <div v-if="currentView === 'nameInput'" class="max-w-md mx-auto">
+            <div class="bg-white rounded-lg shadow-xl p-8">
+                <h2 class="text-2xl font-bold text-center text-indigo-800 mb-6">
+                    Кращий! Ти пройшов тест!
+                </h2>
+                <p class="text-gray-600 text-center mb-6">Напиши позивний:</p>
+                <input 
+                    v-model="userName"
+                    type="text"
+                    placeholder="Ваше ім'я"
+                    class="w-full px-4 py-3 border-2 border-indigo-300 rounded-lg focus:outline-none focus:border-indigo-600 mb-4"
+                    @keyup.enter="submitName"
+                />
+                <button 
+                    @click="submitName"
+                    :disabled="!userName.trim()"
+                    class="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                    Продовжити
+                </button>
+            </div>
+        </div>
+
+        <!-- Фінальне вікно -->
+        <div v-if="currentView === 'success'" class="max-w-2xl mx-auto">
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-lg shadow-2xl p-12 text-white text-center">
+                <div class="text-6xl mb-4">🎉</div>
+                <h1 class="text-4xl font-bold mb-4">
+                    {{ userName }} ти кращий!
+                </h1>
+                <p class="text-2xl mb-6">
+                    Ти успішно пройшов тест "{{ selectedTest.name }}"!
+                </p>
+                <div class="bg-white bg-opacity-20 rounded-lg p-6 mb-6">
+                    <p class="text-lg">Відправ цей скріншот своєму командиру щоб він тобою пишався!</p>
+                </div>
+                <button 
+                    @click="backToTests"
+                    class="bg-white text-indigo-600 px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+                >
+                    Вибрати інший тест
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
