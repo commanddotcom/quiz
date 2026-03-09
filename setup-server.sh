@@ -30,7 +30,7 @@ ssh $SERVER << ENDSSH
     echo "📥 Клонуємо репозиторій..."
     cd /var/www
     rm -rf test-app
-    git clone git@github.com:dtrmnd/quiz.git test-app
+    git clone git@github.com:commanddotcom/quiz.git test-app
     cd test-app
     
     # Запускаємо додаток
