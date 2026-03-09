@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-const PORT = 80;
+const PORT = process.env.PORT || 80;
 const DATA_DIR = path.join(__dirname, 'data');
 const RESULTS_FILE = path.join(DATA_DIR, 'results.txt');
 

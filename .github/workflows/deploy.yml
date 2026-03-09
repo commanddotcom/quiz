@@ -20,6 +20,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_quiz -o IdentitiesOnly=yes"
             cd /var/www/test-app
             git pull origin main
             docker compose -f docker-compose.prod.yml down
