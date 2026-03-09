@@ -31,6 +31,21 @@ createApp({
         }
     },
     methods: {
+        shuffleAnswers(question) {
+            // Зберігаємо правильну відповідь
+            const correctAnswer = question.answers[question.correctAnswer];
+            
+            // Перемішуємо відповіді (Fisher-Yates shuffle)
+            const shuffled = [...question.answers];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            // Оновлюємо масив і знаходимо новий індекс правильної відповіді
+            question.answers = shuffled;
+            question.correctAnswer = shuffled.indexOf(correctAnswer);
+        },
         async loadTests() {
             try {
                 const response = await fetch('tests.json');
@@ -41,7 +56,14 @@ createApp({
             }
         },
         selectTest(test) {
-            this.selectedTest = test;
+            // Клонуємо тест щоб не змінювати оригінал
+            this.selectedTest = JSON.parse(JSON.stringify(test));
+            
+            // Перемішуємо відповіді для всіх питань
+            this.selectedTest.questions.forEach(question => {
+                this.shuffleAnswers(question);
+            });
+            
             this.currentQuestionIndex = 0;
             this.answerSelected = false;
             this.selectedAnswerIndex = null;
@@ -87,6 +109,11 @@ createApp({
             }
         },
         restartTest() {
+            // Перемішуємо відповіді знову
+            this.selectedTest.questions.forEach(question => {
+                this.shuffleAnswers(question);
+            });
+            
             this.currentQuestionIndex = 0;
             this.answerSelected = false;
             this.selectedAnswerIndex = null;
