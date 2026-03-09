@@ -70,8 +70,8 @@ cat ~/.ssh/id_quiz
 ssh root@your-server-ip
 cd /var/www/test-app
 git pull origin main
-docker-compose -f docker-compose.prod.yml down
-docker-compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ## Налаштування SSL (один раз)
@@ -80,12 +80,12 @@ docker-compose -f docker-compose.prod.yml up -d --build
 
 ```bash
 cd /var/www/moblik
-docker-compose stop webserver
+docker compose stop webserver
 certbot certonly --standalone -d test.example.com
 mkdir -p docker/nginx/ssl/test.example.com
 cp /etc/letsencrypt/live/test.example.com/fullchain.pem docker/nginx/ssl/test.example.com/
 cp /etc/letsencrypt/live/test.example.com/privkey.pem docker/nginx/ssl/test.example.com/
-docker-compose start webserver
+docker compose start webserver
 ```
 
 ## Моніторинг деплою

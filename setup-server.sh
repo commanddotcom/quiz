@@ -26,6 +26,13 @@ ssh $SERVER << ENDSSH
         apt-get install -y git
     fi
     
+    # Перевіряємо наявність Docker
+    if ! command -v docker &> /dev/null; then
+        echo "❌ Docker не встановлено!"
+        echo "Встановіть Docker та повторіть спробу"
+        exit 1
+    fi
+    
     # Створюємо окремий SSH ключ для цього проекту
     if [ ! -f ~/.ssh/id_quiz ]; then
         echo "🔑 Створюємо SSH ключ для quiz..."
@@ -64,7 +71,7 @@ EOF
     
     # Запускаємо додаток
     echo "🐳 Запускаємо Docker контейнери..."
-    docker-compose -f docker-compose.prod.yml up -d --build
+    docker compose -f docker-compose.prod.yml up -d --build
     
     # Копіюємо nginx конфігурацію
     echo "🌐 Налаштовуємо Nginx..."
@@ -72,7 +79,7 @@ EOF
     
     # Перезапускаємо nginx
     cd /var/www/moblik
-    docker-compose restart webserver
+    docker compose restart webserver
     
     echo ""
     echo "✅ Перше встановлення завершено!"
@@ -82,12 +89,12 @@ EOF
     echo ""
     echo "🔐 Для SSL виконайте на сервері:"
     echo "   cd /var/www/moblik"
-    echo "   docker-compose stop webserver"
+    echo "   docker compose stop webserver"
     echo "   certbot certonly --standalone -d $DOMAIN"
     echo "   mkdir -p docker/nginx/ssl/$DOMAIN"
     echo "   cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem docker/nginx/ssl/$DOMAIN/"
     echo "   cp /etc/letsencrypt/live/$DOMAIN/privkey.pem docker/nginx/ssl/$DOMAIN/"
-    echo "   docker-compose start webserver"
+    echo "   docker compose start webserver"
 ENDSSH
 
 echo ""
