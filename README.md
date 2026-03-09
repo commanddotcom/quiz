@@ -80,3 +80,4 @@ docker-compose down
 - Vue.js 3
 - Tailwind CSS
 - Vanilla JavaScript
+# Test auto-deploy
