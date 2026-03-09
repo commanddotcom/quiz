@@ -1,13 +1,24 @@
-FROM nginx:alpine
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Копіюємо package files
+COPY package*.json ./
+
+# Встановлюємо залежності
+RUN npm install --production
 
 # Копіюємо файли додатку
-COPY index.html /usr/share/nginx/html/
-COPY app.js /usr/share/nginx/html/
-COPY tests.json /usr/share/nginx/html/
-COPY img /usr/share/nginx/html/img
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY server.js .
+COPY index.html .
+COPY app.js .
+COPY tests.json .
+COPY img ./img
+
+# Створюємо том для збереження результатів
+VOLUME ["/app/data"]
 
 # Відкриваємо порт 80
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server.js"]

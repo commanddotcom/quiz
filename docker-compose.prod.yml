@@ -7,3 +7,8 @@ services:
       - "8081:80"
     restart: unless-stopped
     container_name: test_app
+    volumes:
+      - quiz_results:/app/data
+
+volumes:
+  quiz_results:

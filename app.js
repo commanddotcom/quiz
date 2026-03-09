@@ -94,6 +94,20 @@ createApp({
         },
         submitName() {
             if (this.userName.trim()) {
+                // Зберігаємо результат на сервері
+                fetch('/api/save-result', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: this.userName,
+                        testName: this.selectedTest.name
+                    })
+                }).catch(error => {
+                    console.error('Помилка збереження результату:', error);
+                });
+                
                 this.currentView = 'success';
             }
         },
