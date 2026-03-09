@@ -48,11 +48,14 @@ app.post('/api/save-result', async (req, res) => {
 app.get('/_results_', async (req, res) => {
     try {
         let content = '';
+        let fileExists = true;
+        
         try {
             content = await fs.readFile(RESULTS_FILE, 'utf8');
         } catch (err) {
             if (err.code === 'ENOENT') {
-                content = 'Результатів поки немає';
+                content = '';
+                fileExists = false;
             } else {
                 throw err;
             }
