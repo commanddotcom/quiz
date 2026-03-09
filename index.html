@@ -12,6 +12,20 @@
         <!-- Вибір тесту -->
         <div v-if="currentView === 'testSelection'" class="max-w-2xl mx-auto">
             <h1 class="text-4xl font-bold text-center text-indigo-800 mb-8">Виберіть тест</h1>
+            
+            <!-- Опис сервісу -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <p class="text-gray-700 leading-relaxed mb-3">
+                    Цей тест не є зрізом ваших знань. <strong>Це шпаргалка</strong> яка буде постійно оновлюватись разом з впровадженням нових технічних рішень і отриманням нової інфомрації.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-3">
+                    Тести створені таким чином, щоб їх можна було <strong>пройти за 1 хвилину</strong> з телефона. Будь ласка, <strong>перевіряйте себе</strong> коли збиратесь на позицію. 
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    Якщо у вас виникають питання / зауваження до змісту теста пишіть в профільну групу, будемо обговорювати.
+                </p>
+            </div>
+            
             <div class="grid gap-4">
                 <div 
                     v-for="test in tests" 
