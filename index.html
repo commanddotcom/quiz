@@ -84,6 +84,12 @@
                     </button>
                 </div>
 
+                <!-- Коментар до відповіді -->
+                <div v-if="answerSelected && !showError && currentQuestion.commentsToAnswer" class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p class="text-sm font-semibold text-blue-800 mb-2">📝 Пояснення:</p>
+                    <p class="text-gray-700 leading-relaxed">{{ currentQuestion.commentsToAnswer }}</p>
+                </div>
+
                 <!-- Повідомлення про помилку -->
                 <div v-if="showError" class="mt-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
                     <p class="font-bold">Проїбав Вампір. Треба починати з початку.</p>
