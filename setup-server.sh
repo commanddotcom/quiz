@@ -26,11 +26,40 @@ ssh $SERVER << ENDSSH
         apt-get install -y git
     fi
     
-    # Клонуємо репозиторій
+    # Створюємо окремий SSH ключ для цього проекту
+    if [ ! -f ~/.ssh/id_quiz ]; then
+        echo "🔑 Створюємо SSH ключ для quiz..."
+        ssh-keygen -t ed25519 -f ~/.ssh/id_quiz -C "quiz-deploy" -N ""
+        echo ""
+        echo "📋 Додайте цей ключ як Deploy Key в GitHub:"
+        echo "   Репозиторій → Settings → Deploy keys → Add deploy key"
+        echo "   ✅ Дозвольте write access (Allow write access)"
+        echo ""
+        cat ~/.ssh/id_quiz.pub
+        echo ""
+        read -p "Натисніть Enter після додавання ключа в GitHub..."
+    fi
+    
+    # Налаштовуємо SSH для використання окремого ключа
+    mkdir -p ~/.ssh
+    if ! grep -q "Host github.com-quiz" ~/.ssh/config 2>/dev/null; then
+        cat >> ~/.ssh/config << EOF
+
+# Quiz project
+Host github.com-quiz
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_quiz
+    IdentitiesOnly yes
+EOF
+        chmod 600 ~/.ssh/config
+    fi
+    
+    # Клонуємо репозиторій з використанням окремого ключа
     echo "📥 Клонуємо репозиторій..."
     cd /var/www
     rm -rf test-app
-    git clone git@github.com:commanddotcom/quiz.git test-app
+    git clone git@github.com-quiz:commanddotcom/quiz.git test-app
     cd test-app
     
     # Запускаємо додаток
