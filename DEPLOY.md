@@ -36,16 +36,7 @@ cp /var/www/nginx-site.conf /var/www/moblik/docker/nginx/conf.d/test-app.conf
 
 # Відредагуйте конфігурацію - замініть домен на ваш
 nano /var/www/moblik/docker/nginx/conf.d/test-app.conf
-# Замініть "your-test-subdomain.com" на ваш реальний субдомен
-
-# Якщо використовується host.docker.internal, може знадобитись --add-host
-# Або замініть host.docker.internal на IP сервера (172.17.0.1 або подивіться через: ip addr show docker0)
-```
-
-**Альтернативний варіант для proxy_pass:**
-Якщо `host.docker.internal` не працює, використайте IP Docker bridge:
-```nginx
-proxy_pass http://172.17.0.1:8081;
+# Замініть обидва "your-test-subdomain.com" на ваш реальний субдомен
 ```
 
 ### 4. Перезапустіть Nginx контейнер
@@ -76,12 +67,16 @@ certbot certonly --standalone -d ваш-тест-субдомен.com
 # Сертифікат буде в /etc/letsencrypt/live/ваш-тест-субдомен.com/
 
 # Скопіюйте сертифікат в папку для nginx
-mkdir -p /var/www/moblik/docker/nginx/ssl/ваш-тест-субдомен.com
-cp /etc/letsencrypt/live/ваш-тест-субдомен.com/fullchain.pem /var/www/moblik/docker/nginx/ssl/ваш-тест-субдомен.com/
-cp /etc/letsencrypt/live/ваш-тест-субдомен.com/privkey.pem /var/www/moblik/docker/nginx/ssl/ваш-тест-субдомен.com/
+mkdir -p /var/www/moblik/docker/nginx/ssl/test
+cp /etc/letsencrypt/live/ваш-тест-субдомен.com/fullchain.pem /var/www/moblik/docker/nginx/ssl/test/
+cp /etc/letsencrypt/live/ваш-тест-субдомен.com/privkey.pem /var/www/moblik/docker/nginx/ssl/test/
 
 # Запустіть nginx назад
+cd /var/www/moblik
 docker-compose start webserver
+
+# Перевірте чи все працює
+curl https://ваш-тест-субдомен.com
 ```
 
 ```bash
