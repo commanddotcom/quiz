@@ -50,7 +50,15 @@ createApp({
             try {
                 const response = await fetch('tests.json');
                 const data = await response.json();
-                this.tests = data.tests;
+                
+                // Автоматично генеруємо id для кожного питання
+                this.tests = data.tests.map(test => ({
+                    ...test,
+                    questions: test.questions.map((question, index) => ({
+                        id: index + 1,
+                        ...question
+                    }))
+                }));
             } catch (error) {
                 console.error('Помилка завантаження тестів:', error);
             }
