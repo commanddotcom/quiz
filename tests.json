@@ -49,8 +49,8 @@
                     "text": "В якому режимі борт буде зберігати максимальну керованість без стаби?",
                     "image": null,
                     "answers": [
-                        "pos hold",
-                        "alt hold",
+                        "pos_hold",
+                        "alt_hold",
                         "stabilize"
                     ],
                     "correctAnswer": 2,
@@ -213,7 +213,7 @@
                     "commentsToAnswer": ""
                 },
                 {
-                    "text": "Що означає \"надійне фіксація батки\"?",
+                    "text": "Що означає \"надійна фіксація батки\"?",
                     "image": null,
                     "answers": [
                         "Батка не впаде",
@@ -232,7 +232,17 @@
                     "correctAnswer": 1,
                     "commentsToAnswer": ""
                 },
-                 {
+                {
+                    "text": "Чи потрібно перезаживляти стабу після disarm перед наступним вильотом?",
+                    "image": null,
+                    "answers": [
+                        "Так, потрібно",
+                        "Не обов'язково"
+                    ],
+                    "correctAnswer": 0,
+                    "commentsToAnswer": "Якщо мотори зупинились, то стаба може автоматично відключитись."
+                },
+                {
                     "text": "Для чого на правій нозі липка стрічка?",
                     "image": "/img/stab_with_bat.png",
                     "answers": [
