@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Відео</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-5xl w-full">
+        <div class="bg-gray-800 rounded-lg shadow-2xl p-6">
+            <h1 id="videoTitle" class="text-2xl font-bold text-white mb-4"></h1>
+            <video 
+                id="videoPlayer"
+                controls 
+                autoplay
+                class="w-full rounded-lg shadow-lg"
+            >
+                Ваш браузер не підтримує відео.
+            </video>
+            <p id="errorMessage" class="text-red-500 mt-4 hidden"></p>
+        </div>
+    </div>
+    
+    <script>
+        // Отримуємо назву файлу з URL (формат: /video.html?file=назва.mp4 або /video/назва.mp4)
+        const path = window.location.pathname;
+        const params = new URLSearchParams(window.location.search);
+        
+        let filename = params.get('file');
+        
+        // Якщо використовується формат /video/filename
+        if (!filename && path.includes('/video/')) {
+            filename = path.split('/video/')[1];
+        }
+        
+        if (filename) {
+            document.getElementById('videoTitle').textContent = decodeURIComponent(filename);
+            document.getElementById('videoPlayer').src = '/data/' + filename;
+        } else {
+            document.getElementById('errorMessage').textContent = 'Файл не знайдено';
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+        
+        // Обробка помилок завантаження
+        document.getElementById('videoPlayer').addEventListener('error', function() {
+            document.getElementById('errorMessage').textContent = 'Неможливо завантажити відео: ' + filename;
+            document.getElementById('errorMessage').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
