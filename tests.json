@@ -240,7 +240,7 @@
                         "Мотор не підлягає ремонту"
                     ],
                     "correctAnswer": 0,
-                    "commentsToAnswer": "А ось <a style=\"text-decoration: underline\" target=\"_blank\" href=\"http://localhost:8080/video/screw_glue.mp4\">відео інструкція</a>"
+                    "commentsToAnswer": "А ось <a style=\"text-decoration: underline\" target=\"_blank\" href=\"/video/screw_glue.mp4\">відео інструкція</a>"
                 },
                 {
                     "text": "Чи потрібно перезаживляти стабу після disarm перед наступним вильотом?",
