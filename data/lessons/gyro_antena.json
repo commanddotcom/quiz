@@ -1,0 +1,6 @@
+{
+  "title": "Модуль гіростабілізації рупорки. Загальна інформація",
+  "order": 3,
+  "category": "vamp_service",
+  "body": "<p>Вступ</p><video controls><source src=\"/data/video/gyro_antena_1.mp4\" type=\"video/mp4\"></video><p>Підключення</p><video controls><source src=\"/data/video/gyro_antena_2.mp4\" type=\"video/mp4\"></video>"
+}

@@ -1,0 +1,6 @@
+{
+  "title": "VampireTune: перемикання профайлів: Safe, Normal, Sport",
+  "order": 3,
+  "category": "vamp_pilot",
+  "body": "<p>Якщо на вашому борті та пульті вже налаштовано перемикання профайлів (Safe, Normal, Sport), то правила дуже прості: <ul><li>робіть Land в режимі Safe</li><li> використовуйте Sport для швидкого зниження з великої висоти</li></ul> Відеодемонстрація застосування:</p><video controls><source src=\"/data/video/vampire_tune_demo.mp4\" type=\"video/mp4\"></video>"
+}

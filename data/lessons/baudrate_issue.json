@@ -1,0 +1,6 @@
+{
+  "title": "Картинка є, а бінда немає. Це проблема з Baud rate",
+  "order": 2,
+  "category": "vamp_pilot",
+  "body": "<p>Може виникнути збій коли відео є, керування камерою є, але нічого немає. Приклад на фото: </p><img src=\"/data/img/baudrate_issue_1.png\"><p>Це означає що збився baud rate (бауд рейт). Щоб виправити: <video controls><source src=\"/data/video/baud_rate_issue.mp4\" type=\"video/mp4\"></video></p>"
+}

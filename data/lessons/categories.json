@@ -1,0 +1,5 @@
+[
+
+  { "id": "vamp_pilot", "name": "Операторам Вампіра", "order": 1 },
+  { "id": "vamp_service", "name": "Технікам ретрика", "order": 2 }
+]

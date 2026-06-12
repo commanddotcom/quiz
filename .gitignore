@@ -1,6 +1,7 @@
 # Результати
 results.txt
-data/
+data/video/
+data/img/
 
 # Node
 node_modules/
