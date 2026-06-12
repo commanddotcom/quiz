@@ -6,10 +6,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./data:/app/data
-      - ./tests.json:/app/tests.json
-      - ./index.html:/app/index.html
-      - ./app.js:/app/app.js
-      - ./img:/app/img
+      - .:/app
+      - /app/node_modules
     restart: unless-stopped
     container_name: test-app

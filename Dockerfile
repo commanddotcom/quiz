@@ -15,9 +15,6 @@ COPY app.js .
 COPY tests.json .
 COPY img ./img
 
-# Створюємо том для збереження результатів
-VOLUME ["/app/data"]
-
 # Відкриваємо порт 80
 EXPOSE 80
 

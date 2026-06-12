@@ -1,30 +1,99 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 80;
 const DATA_DIR = path.join(__dirname, 'data');
 const RESULTS_FILE = path.join(DATA_DIR, 'results.txt');
+const LESSONS_DIR = path.join(DATA_DIR, 'lessons');
 
-// Створюємо директорію для даних при старті
+const PASSWORD_HASH = crypto.createHash('sha256').update('asgard@2023').digest('hex');
+const sessions = new Map();
+
 (async () => {
     try {
         await fs.mkdir(DATA_DIR, { recursive: true });
+        await fs.mkdir(LESSONS_DIR, { recursive: true });
     } catch (err) {
-        console.error('Помилка створення директорії:', err);
+        console.error('Помилка створення директорій:', err);
     }
 })();
 
-// Middleware
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Збереження результату
+function requireAuth(req, res, next) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Не авторизовано' });
+    }
+    const token = auth.slice(7);
+    if (!sessions.has(token)) {
+        return res.status(401).json({ error: 'Сесія недійсна' });
+    }
+    next();
+}
+
+app.post('/api/auth', (req, res) => {
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: 'Введіть пароль' });
+    const hash = crypto.createHash('sha256').update(password).digest('hex');
+    if (hash !== PASSWORD_HASH) return res.status(401).json({ error: 'Невірний пароль' });
+    const token = crypto.randomBytes(32).toString('hex');
+    sessions.set(token, Date.now());
+    res.json({ token });
+});
+
+app.get('/api/lessons', requireAuth, async (_req, res) => {
+    try {
+        let categories = [];
+        try {
+            categories = JSON.parse(await fs.readFile(path.join(LESSONS_DIR, 'categories.json'), 'utf8'));
+        } catch { /* no categories file */ }
+
+        const files = (await fs.readdir(LESSONS_DIR))
+            .filter(f => f.endsWith('.json') && f !== 'categories.json');
+
+        const lessons = await Promise.all(files.map(async file => {
+            const content = JSON.parse(await fs.readFile(path.join(LESSONS_DIR, file), 'utf8'));
+            return { id: path.basename(file, '.json'), title: content.title, category: content.category || null, order: content.order ?? 0 };
+        }));
+
+        const grouped = categories.map(cat => ({
+            ...cat,
+            lessons: lessons.filter(l => l.category === cat.id).sort((a, b) => a.order - b.order)
+        }));
+
+        const uncategorized = lessons.filter(l => !categories.find(c => c.id === l.category));
+        if (uncategorized.length > 0) {
+            grouped.push({ id: 'uncategorized', name: 'Інше', order: 9999, lessons: uncategorized.sort((a, b) => a.order - b.order) });
+        }
+
+        res.json(grouped.sort((a, b) => a.order - b.order));
+    } catch {
+        res.status(500).json({ error: 'Помилка завантаження' });
+    }
+});
+
+app.get('/api/lessons/:id', requireAuth, async (req, res) => {
+    const { id } = req.params;
+    if (!/^[\w-]+$/.test(id)) return res.status(400).json({ error: 'Невірний запит' });
+    try {
+        const lessonPath = path.join(LESSONS_DIR, `${id}.json`);
+        const content = JSON.parse(await fs.readFile(lessonPath, 'utf8'));
+        res.json({ id, ...content });
+    } catch (err) {
+        if (err.code === 'ENOENT') return res.status(404).json({ error: 'Не знайдено' });
+        res.status(500).json({ error: 'Помилка завантаження' });
+    }
+});
+
 app.post('/api/save-result', async (req, res) => {
     try {
-        const { name, testName } = req.body;
-        
+        const { name, testName, correct, incorrect, wrongQuestions, passed } = req.body;
+
         if (!name || !testName) {
             return res.status(400).json({ error: 'Невірні дані' });
         }
@@ -32,11 +101,15 @@ app.post('/api/save-result', async (req, res) => {
         const now = new Date();
         const date = now.toLocaleDateString('uk-UA');
         const time = now.toLocaleTimeString('uk-UA');
-        
-        const result = `${date} ${time} - ${name} - ${testName}\n`;
-        
+
+        const status = passed ? 'СКЛАВ' : 'НЕ СКЛАВ';
+        const wrongStr = wrongQuestions && wrongQuestions.length > 0
+            ? `помилки у пит. ${wrongQuestions.join(', ')}`
+            : 'без помилок';
+        const result = `${date} ${time} | ${name} | ${testName} | ${status} | ✓${correct} ✗${incorrect} | ${wrongStr}\n`;
+
         await fs.appendFile(RESULTS_FILE, result, 'utf8');
-        
+
         res.json({ success: true });
     } catch (error) {
         console.error('Помилка збереження:', error);
@@ -44,8 +117,7 @@ app.post('/api/save-result', async (req, res) => {
     }
 });
 
-// Перегляд результатів
-app.get('/_results_', async (req, res) => {
+app.get('/_results_', async (_req, res) => {
     try {
         let content = '';
         try {
@@ -76,7 +148,7 @@ app.get('/_results_', async (req, res) => {
         <div class="bg-white rounded-lg shadow-lg p-6">
             <h1 class="text-3xl font-bold text-indigo-800 mb-6">Результати тестування</h1>
             <div class="space-y-2">
-                ${reversedLines.length > 0 
+                ${reversedLines.length > 0
                     ? reversedLines.map(line => `
                         <div class="p-3 bg-gray-50 rounded border-l-4 border-indigo-500">
                             <code class="text-gray-700">${line}</code>
@@ -99,13 +171,11 @@ app.get('/_results_', async (req, res) => {
     }
 });
 
-// Відображення відео
 app.get('/video/:filename', async (req, res) => {
     try {
         const { filename } = req.params;
         const videoPath = path.join(DATA_DIR, filename);
-        
-        // Перевірка існування файлу
+
         try {
             await fs.access(videoPath);
         } catch {
@@ -125,8 +195,8 @@ app.get('/video/:filename', async (req, res) => {
     <div class="max-w-5xl w-full">
         <div class="bg-gray-800 rounded-lg shadow-2xl p-6">
             <h1 class="text-2xl font-bold text-white mb-4">${filename}</h1>
-            <video 
-                controls 
+            <video
+                controls
                 autoplay
                 class="w-full rounded-lg shadow-lg"
                 src="/data/${filename}"
@@ -144,10 +214,8 @@ app.get('/video/:filename', async (req, res) => {
     }
 });
 
-// Статичні файли з папки data
 app.use('/data', express.static(DATA_DIR));
 
-// robots.txt
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send('User-agent: *\nDisallow: /');
